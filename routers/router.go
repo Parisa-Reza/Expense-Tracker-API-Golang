@@ -7,24 +7,8 @@
 // @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
 package routers
 
-import (
-	"expense-tracker-api/controllers"
-
-	beego "github.com/beego/beego/v2/server/web"
-)
-
 func init() {
-	ns := beego.NewNamespace("/v1",
-		beego.NSNamespace("/object",
-			beego.NSInclude(
-				&controllers.ObjectController{},
-			),
-		),
-		beego.NSNamespace("/user",
-			beego.NSInclude(
-				&controllers.UserController{},
-			),
-		),
-	)
-	beego.AddNamespace(ns)
+
+	//  Register health check routes
+	RegisterHealthRoutes()
 }
