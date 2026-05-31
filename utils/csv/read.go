@@ -28,7 +28,6 @@
 // 	return records[1:], nil
 // }
 
-
 package csvutils
 
 import (
@@ -39,19 +38,19 @@ import (
 // ReadUsersCSV reads all user records from the users CSV file. It returns a 2D slice of strings where each inner slice is one user row.
 func ReadUsersCSV() ([][]string, error) {
 
-	// Ensure the CSV file exists 
+	// Ensure the CSV file exists
 	if err := EnsureUsersCSV(); err != nil {
 		return nil, err
 	}
 
 	// Open the CSV file for reading
-	file, err := os.Open(UsersCSVPath)
+	file, err := os.Open(GetUsersCSVPath())
 	if err != nil {
 		return nil, err
 	}
 
 	// Ensure file is closed after function ends
-	defer file.Close() 
+	defer file.Close()
 
 	// Read all rows from CSV file into memory
 	records, err := csv.NewReader(file).ReadAll()

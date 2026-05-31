@@ -9,6 +9,7 @@ import (
 	csvutils "expense-tracker-api/utils/csv"
 )
 
+// User represents one registered user stored in CSV.
 type User struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
@@ -18,9 +19,11 @@ type User struct {
 }
 
 var (
+	// ErrUserNotFound is returned when a user lookup has no match.
 	ErrUserNotFound = errors.New("user not found")
 )
 
+// GetAllUsers returns every valid user row from CSV storage.
 func GetAllUsers() ([]User, error) {
 	records, err := csvutils.ReadUsersCSV()
 	if err != nil {
@@ -55,6 +58,7 @@ func GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
+// GetUserByEmail returns one user matching an email address.
 func GetUserByEmail(email string) (*User, error) {
 	users, err := GetAllUsers()
 	if err != nil {
@@ -70,6 +74,7 @@ func GetUserByEmail(email string) (*User, error) {
 	return nil, ErrUserNotFound
 }
 
+// GetUserByID returns one user matching an ID.
 func GetUserByID(id int) (*User, error) {
 	users, err := GetAllUsers()
 	if err != nil {
@@ -85,6 +90,7 @@ func GetUserByID(id int) (*User, error) {
 	return nil, ErrUserNotFound
 }
 
+// CreateUser stores a new user in CSV storage.
 func CreateUser(user *User) error {
 	user.ID = GetNextID()
 	user.CreatedAt = time.Now().UTC()
@@ -98,6 +104,7 @@ func CreateUser(user *User) error {
 	})
 }
 
+// GetNextID returns the next available user ID.
 func GetNextID() int {
 	users, err := GetAllUsers()
 	if err != nil || len(users) == 0 {
@@ -115,6 +122,7 @@ func GetNextID() int {
 	return maxID + 1
 }
 
+// IsValidUserID reports whether a user ID exists in CSV storage.
 func IsValidUserID(id int) bool {
 	_, err := GetUserByID(id)
 	return err == nil

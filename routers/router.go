@@ -14,4 +14,7 @@ func init() {
 	// User authentication routes (register, login)
 	RegisterRegisterRoutes()
 	RegisterLoginRoutes()
+
+	// Expense routes
+	RegisterExpenseRoutes()
 }
