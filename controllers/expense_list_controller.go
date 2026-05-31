@@ -31,6 +31,13 @@ func (c *ExpenseListController) List() {
 		return
 	}
 
+	options, ok := parseExpenseListOptions(&c.Controller)
+	if !ok {
+		return
+	}
+
+	expenses = models.FilterAndSortExpenses(expenses, options)
+
 	limit, ok := parseLimit(&c.Controller)
 	if !ok {
 		return
