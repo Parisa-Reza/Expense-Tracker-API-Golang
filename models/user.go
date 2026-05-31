@@ -3,84 +3,119 @@ package models
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"time"
-)
 
-var (
-	UserList map[string]*User
+	csvutils "expense-tracker-api/utils/csv"
 )
-
-func init() {
-	UserList = make(map[string]*User)
-	u := User{"user_11111", "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
-	UserList["user_11111"] = &u
-}
 
 type User struct {
-	Id       string
-	Username string
-	Password string
-	Profile  Profile
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-type Profile struct {
-	Gender  string
-	Age     int
-	Address string
-	Email   string
-}
+var (
+	ErrUserNotFound = errors.New("user not found")
+)
 
-func AddUser(u User) string {
-	u.Id = "user_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	UserList[u.Id] = &u
-	return u.Id
-}
-
-func GetUser(uid string) (u *User, err error) {
-	if u, ok := UserList[uid]; ok {
-		return u, nil
+func GetAllUsers() ([]User, error) {
+	records, err := csvutils.ReadUsersCSV()
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("User not exists")
-}
 
-func GetAllUsers() map[string]*User {
-	return UserList
-}
+	users := make([]User, 0, len(records))
+	for _, record := range records {
+		if len(record) < 5 {
+			continue
+		}
 
-func UpdateUser(uid string, uu *User) (a *User, err error) {
-	if u, ok := UserList[uid]; ok {
-		if uu.Username != "" {
-			u.Username = uu.Username
+		id, err := strconv.Atoi(record[0])
+		if err != nil {
+			continue
 		}
-		if uu.Password != "" {
-			u.Password = uu.Password
+
+		createdAt, err := time.Parse(time.RFC3339, record[4])
+		if err != nil {
+			continue
 		}
-		if uu.Profile.Age != 0 {
-			u.Profile.Age = uu.Profile.Age
-		}
-		if uu.Profile.Address != "" {
-			u.Profile.Address = uu.Profile.Address
-		}
-		if uu.Profile.Gender != "" {
-			u.Profile.Gender = uu.Profile.Gender
-		}
-		if uu.Profile.Email != "" {
-			u.Profile.Email = uu.Profile.Email
-		}
-		return u, nil
+
+		users = append(users, User{
+			ID:        id,
+			Name:      record[1],
+			Email:     record[2],
+			Password:  record[3],
+			CreatedAt: createdAt,
+		})
 	}
-	return nil, errors.New("User Not Exist")
+
+	return users, nil
 }
 
-func Login(username, password string) bool {
-	for _, u := range UserList {
-		if u.Username == username && u.Password == password {
-			return true
+func GetUserByEmail(email string) (*User, error) {
+	users, err := GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range users {
+		if strings.EqualFold(users[i].Email, strings.TrimSpace(email)) {
+			return &users[i], nil
 		}
 	}
-	return false
+
+	return nil, ErrUserNotFound
 }
 
-func DeleteUser(uid string) {
-	delete(UserList, uid)
+func GetUserByID(id int) (*User, error) {
+	users, err := GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range users {
+		if users[i].ID == id {
+			return &users[i], nil
+		}
+	}
+
+	return nil, ErrUserNotFound
+}
+
+func CreateUser(user *User) error {
+	user.ID = GetNextID()
+	user.CreatedAt = time.Now().UTC()
+
+	return csvutils.AppendUserCSV([]string{
+		strconv.Itoa(user.ID),
+		user.Name,
+		user.Email,
+		user.Password,
+		user.CreatedAt.Format(time.RFC3339),
+	})
+}
+
+func GetNextID() int {
+	users, err := GetAllUsers()
+	if err != nil || len(users) == 0 {
+		return 1
+	}
+
+	maxID := 0
+	// here we loop through all users to find the maximum ID and return maxID + 1 as the next ID
+	for _, user := range users {
+		if user.ID > maxID {
+			maxID = user.ID
+		}
+	}
+
+	return maxID + 1
+}
+
+func IsValidUserID(id int) bool {
+	_, err := GetUserByID(id)
+	return err == nil
 }

@@ -1,14 +1,17 @@
 // @APIVersion 1.0.0
-// @Title beego Test API
-// @Description beego has a very cool tools to autogenerate documents for your API
-// @Contact astaxie@gmail.com
-// @TermsOfServiceUrl http://beego.me/
-// @License Apache 2.0
-// @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
+// @Title Expense Tracker APIs
+// @Description A RESTful API for managing user authentication and expense tracking, including user registration, login, and system health checks.
+// @BasePath /api/v1
 package routers
 
 func init() {
 
-	//  Register health check routes
+	// Register all application routes
+
+	// Health check endpoints (system status)
 	RegisterHealthRoutes()
+
+	// User authentication routes (register, login)
+	RegisterRegisterRoutes()
+	RegisterLoginRoutes()
 }
