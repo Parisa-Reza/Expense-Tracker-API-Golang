@@ -15,6 +15,7 @@ import (
 func RegisterExpenseRoutes() {
 	web.Router("/api/v1/expenses", &controllers.ExpenseCreateController{}, "post:Create")
 	web.Router("/api/v1/expenses", &controllers.ExpenseListController{}, "get:List")
+	web.Router("/api/v1/expenses/summary", &controllers.ExpenseSummaryController{}, "get:Summary")
 	web.Router("/api/v1/expenses/:id", &controllers.ExpenseGetController{}, "get:Get")
 	web.Router("/api/v1/expenses/:id", &controllers.ExpenseUpdateController{}, "put:Update")
 	web.Router("/api/v1/expenses/:id", &controllers.ExpenseDeleteController{}, "delete:Delete")

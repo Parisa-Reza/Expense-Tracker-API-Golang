@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +33,24 @@ var (
 	// ErrInvalidExpenseCategory is returned when an expense category is not allowed.
 	ErrInvalidExpenseCategory = errors.New("invalid expense category")
 )
+
+// ExpenseListOptions contains optional filters and sorting for expense lists.
+type ExpenseListOptions struct {
+	Category  string
+	DateFrom  string
+	DateTo    string
+	SortBy    string
+	SortOrder string
+}
+
+// ExpenseSummary contains aggregate expense data for a date range.
+type ExpenseSummary struct {
+	DateFrom       string             `json:"date_from"`
+	DateTo         string             `json:"date_to"`
+	TotalAmount    float64            `json:"total_amount"`
+	TotalCount     int                `json:"total_count"`
+	CategoryTotals map[string]float64 `json:"category_totals"`
+}
 
 // GetAllExpenses returns every valid expense row from the CSV storage.
 func GetAllExpenses() ([]Expense, error) {
@@ -67,6 +86,71 @@ func GetExpensesByUserID(userID int) ([]Expense, error) {
 	}
 
 	return userExpenses, nil
+}
+
+// GetExpensesByUserIDWithOptions returns a user's expenses after applying filters and sorting.
+func GetExpensesByUserIDWithOptions(userID int, options ExpenseListOptions) ([]Expense, error) {
+	expenses, err := GetExpensesByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return FilterAndSortExpenses(expenses, options), nil
+}
+
+// FilterAndSortExpenses applies category, date range, and sort options to expenses.
+func FilterAndSortExpenses(expenses []Expense, options ExpenseListOptions) []Expense {
+	filteredExpenses := make([]Expense, 0, len(expenses))
+	for _, expense := range expenses {
+		if options.Category != "" && expense.Category != options.Category {
+			continue
+		}
+		if options.DateFrom != "" && expense.ExpenseDate < options.DateFrom {
+			continue
+		}
+		if options.DateTo != "" && expense.ExpenseDate > options.DateTo {
+			continue
+		}
+
+		filteredExpenses = append(filteredExpenses, expense)
+	}
+
+	sortExpenses(filteredExpenses, options.SortBy, options.SortOrder)
+	return filteredExpenses
+}
+
+// GetExpenseSummaryByUserID returns aggregate totals for a user's expenses in a date range.
+func GetExpenseSummaryByUserID(userID int, dateFrom string, dateTo string) (ExpenseSummary, error) {
+	expenses, err := GetExpensesByUserID(userID)
+	if err != nil {
+		return ExpenseSummary{}, err
+	}
+
+	return SummarizeExpenses(expenses, dateFrom, dateTo), nil
+}
+
+// SummarizeExpenses totals expenses that fall within the optional date range.
+func SummarizeExpenses(expenses []Expense, dateFrom string, dateTo string) ExpenseSummary {
+	summary := ExpenseSummary{
+		DateFrom:       dateFrom,
+		DateTo:         dateTo,
+		CategoryTotals: make(map[string]float64),
+	}
+
+	for _, expense := range expenses {
+		if dateFrom != "" && expense.ExpenseDate < dateFrom {
+			continue
+		}
+		if dateTo != "" && expense.ExpenseDate > dateTo {
+			continue
+		}
+
+		summary.TotalAmount += expense.Amount
+		summary.TotalCount++
+		summary.CategoryTotals[expense.Category] += expense.Amount
+	}
+
+	return summary
 }
 
 // GetExpenseByID returns one expense when it belongs to the requested user.
@@ -178,6 +262,39 @@ func IsAllowedCategory(category string) bool {
 	}
 
 	return false
+}
+
+func sortExpenses(expenses []Expense, sortBy string, sortOrder string) {
+	if sortBy == "" {
+		return
+	}
+
+	descending := sortOrder == "desc"
+	sort.Slice(expenses, func(i int, j int) bool {
+		var comparison int
+		switch sortBy {
+		case "amount":
+			if expenses[i].Amount < expenses[j].Amount {
+				comparison = -1
+			} else if expenses[i].Amount > expenses[j].Amount {
+				comparison = 1
+			}
+		case "expense_date":
+			if expenses[i].ExpenseDate < expenses[j].ExpenseDate {
+				comparison = -1
+			} else if expenses[i].ExpenseDate > expenses[j].ExpenseDate {
+				comparison = 1
+			}
+		default:
+			return false
+		}
+
+		if descending {
+			return comparison > 0
+		}
+
+		return comparison < 0
+	})
 }
 
 func expenseFromRecord(record []string) (Expense, error) {
