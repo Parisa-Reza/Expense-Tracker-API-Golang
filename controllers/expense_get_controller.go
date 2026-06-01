@@ -18,17 +18,21 @@ type ExpenseGetController struct {
 
 // Get returns one expense owned by the authenticated user.
 func (c *ExpenseGetController) Get() {
+
+	// GetAuthenticatedUserID to checks if the request is authenticated and to get the user ID.
 	userID, ok := GetAuthenticatedUserID(c.Ctx)
 	if !ok {
 		beego.Warn("unauthorized expense get attempt")
 		return
 	}
 
+	
 	expenseID, ok := parseExpenseID(&c.Controller)
 	if !ok {
 		return
 	}
 
+	// Fetch the expense, scoping the lookup to the authenticated user so that one user cannot read another user's records.
 	expense, err := models.GetExpenseByID(expenseID, userID)
 	if errors.Is(err, models.ErrExpenseNotFound) {
 		writeExpenseError(&c.Controller, http.StatusNotFound, "Expense not found")
@@ -41,9 +45,13 @@ func (c *ExpenseGetController) Get() {
 	}
 
 	beego.Info("expense retrieved:", expenseID)
+
+	// here writeExpensionJSON to send a JSON response back to the client with the expense data, using the newExpenseResponse helper function to format the expense data appropriately for the response.
 	writeExpenseJSON(&c.Controller, http.StatusOK, true, "Expense retrieved", newExpenseResponse(*expense))
 }
 
+
+// parseExpenseID extracts the ":id" route parameter from the request URL, converts it to an integer, and validates that it is a positive value.
 func parseExpenseID(controller *web.Controller) (int, bool) {
 	expenseID, err := strconv.Atoi(controller.Ctx.Input.Param(":id"))
 	if err != nil || expenseID < 1 {

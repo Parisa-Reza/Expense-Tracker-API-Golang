@@ -35,7 +35,7 @@ type expenseResponse struct {
 	ExpenseDate string  `json:"expense_date"`
 }
 
-// Create creates a new expense for the authenticated user.
+// creates a new expense for the authenticated user.
 func (c *ExpenseCreateController) Create() {
 	userID, ok := GetAuthenticatedUserID(c.Ctx)
 	if !ok {
@@ -43,11 +43,13 @@ func (c *ExpenseCreateController) Create() {
 		return
 	}
 
+	// parisng the incoming JSON request body into an expenseRequest struct.
 	request, ok := parseExpenseRequest(&c.Controller)
 	if !ok {
 		return
 	}
 
+	// creating a new Expense struct with the parsed data and the authenticated user ID .
 	expense := &models.Expense{
 		UserID:      userID,
 		Title:       request.Title,
@@ -56,6 +58,8 @@ func (c *ExpenseCreateController) Create() {
 		Note:        request.Note,
 		ExpenseDate: request.ExpenseDate,
 	}
+
+	// here creating the expense using the CreateExpense function from the models package..
 
 	if err := models.CreateExpense(expense); errors.Is(err, models.ErrInvalidExpenseCategory) {
 		writeExpenseError(&c.Controller, http.StatusBadRequest, "Invalid expense category")
@@ -72,16 +76,24 @@ func (c *ExpenseCreateController) Create() {
 
 func parseExpenseRequest(controller *web.Controller) (expenseRequest, bool) {
 	var request expenseRequest
+
+	// parsing json to struct 
 	if err := json.Unmarshal(controller.Ctx.Input.RequestBody, &request); err != nil {
+
+		// logging the error and returning a bad request response if the JSON is invalid or cannot be parsed into the expected structure.
 		beego.Warn("invalid expense request body:", err)
 		writeExpenseError(controller, http.StatusBadRequest, "Invalid request body")
 		return expenseRequest{}, false
 	}
 
+	// trimming whitespace from string fields
 	request.Title = strings.TrimSpace(request.Title)
 	request.Category = strings.TrimSpace(request.Category)
 	request.Note = strings.TrimSpace(request.Note)
 	request.ExpenseDate = strings.TrimSpace(request.ExpenseDate)
+
+
+    //validating required fields 
 
 	if request.Title == "" || request.Category == "" || request.ExpenseDate == "" {
 		writeExpenseError(controller, http.StatusBadRequest, "Title, category, and expense_date are required")
@@ -106,6 +118,8 @@ func parseExpenseRequest(controller *web.Controller) (expenseRequest, bool) {
 	return request, true
 }
 
+
+// newExpenseResponse is a helper function that converts a models.Expense struct into an expenseResponse struct, which is the format we want to return in the JSON response.
 func newExpenseResponse(expense models.Expense) expenseResponse {
 	return expenseResponse{
 		ID:          expense.ID,
@@ -117,6 +131,7 @@ func newExpenseResponse(expense models.Expense) expenseResponse {
 	}
 }
 
+// 
 func writeExpenseJSON(controller *web.Controller, statusCode int, success bool, message string, data interface{}) {
 	controller.Ctx.Output.SetStatus(statusCode)
 	controller.Data["json"] = map[string]interface{}{

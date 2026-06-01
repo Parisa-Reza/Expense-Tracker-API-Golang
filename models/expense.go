@@ -54,13 +54,20 @@ type ExpenseSummary struct {
 
 // GetAllExpenses returns every valid expense row from the CSV storage.
 func GetAllExpenses() ([]Expense, error) {
+
+	// Reads all CSV rows.
 	records, err := expenseutils.ReadExpensesCSV()
 	if err != nil {
 		return nil, err
 	}
 
+	// Slice with pre-allocated capacity to hold  expenses.
 	expenses := make([]Expense, 0, len(records))
+
+	// Loops through CSV rows.
 	for _, record := range records {
+
+		// Converts CSV row to Expense struct. If any error occurs, skip the row and continue with the next one.
 		expense, err := expenseFromRecord(record)
 		if err != nil {
 			continue
@@ -73,13 +80,17 @@ func GetAllExpenses() ([]Expense, error) {
 
 // GetExpensesByUserID returns all expenses owned by a user.
 func GetExpensesByUserID(userID int) ([]Expense, error) {
+
+	// Load all expenses.
 	expenses, err := GetAllExpenses()
 	if err != nil {
 		return nil, err
 	}
 
+	// An empty slice for storing only this user's expenses.
 	userExpenses := make([]Expense, 0)
 	for _, expense := range expenses {
+		// If the expense belongs to the requested user, add it to the result slice.
 		if expense.UserID == userID {
 			userExpenses = append(userExpenses, expense)
 		}
@@ -90,6 +101,8 @@ func GetExpensesByUserID(userID int) ([]Expense, error) {
 
 // GetExpensesByUserIDWithOptions returns a user's expenses after applying filters and sorting.
 func GetExpensesByUserIDWithOptions(userID int, options ExpenseListOptions) ([]Expense, error) {
+	
+	// getting all expenses of the user
 	expenses, err := GetExpensesByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -102,9 +115,14 @@ func GetExpensesByUserIDWithOptions(userID int, options ExpenseListOptions) ([]E
 func FilterAndSortExpenses(expenses []Expense, options ExpenseListOptions) []Expense {
 	filteredExpenses := make([]Expense, 0, len(expenses))
 	for _, expense := range expenses {
+
+		// If category filter is in the endpoint AND doesn't match then skip.
 		if options.Category != "" && expense.Category != options.Category {
 			continue
 		}
+
+		// If date range filters are in the endpoint AND expense date is outside the range then skip.
+
 		if options.DateFrom != "" && expense.ExpenseDate < options.DateFrom {
 			continue
 		}
@@ -112,6 +130,7 @@ func FilterAndSortExpenses(expenses []Expense, options ExpenseListOptions) []Exp
 			continue
 		}
 
+		// If the expense passed all filters, add it to the result slice.
 		filteredExpenses = append(filteredExpenses, expense)
 	}
 
@@ -121,6 +140,8 @@ func FilterAndSortExpenses(expenses []Expense, options ExpenseListOptions) []Exp
 
 // GetExpenseSummaryByUserID returns aggregate totals for a user's expenses in a date range.
 func GetExpenseSummaryByUserID(userID int, dateFrom string, dateTo string) (ExpenseSummary, error) {
+	
+	// Getting all expenses of the user to summarize them
 	expenses, err := GetExpensesByUserID(userID)
 	if err != nil {
 		return ExpenseSummary{}, err
@@ -131,13 +152,18 @@ func GetExpenseSummaryByUserID(userID int, dateFrom string, dateTo string) (Expe
 
 // SummarizeExpenses totals expenses that fall within the optional date range.
 func SummarizeExpenses(expenses []Expense, dateFrom string, dateTo string) ExpenseSummary {
+
+	
 	summary := ExpenseSummary{
 		DateFrom:       dateFrom,
 		DateTo:         dateTo,
+		// map for storing total amounts per category, 
 		CategoryTotals: make(map[string]float64),
 	}
 
 	for _, expense := range expenses {
+
+		// If date range filters are in the endpoint AND expense date is outside the range then skip.
 		if dateFrom != "" && expense.ExpenseDate < dateFrom {
 			continue
 		}
@@ -155,11 +181,14 @@ func SummarizeExpenses(expenses []Expense, dateFrom string, dateTo string) Expen
 
 // GetExpenseByID returns one expense when it belongs to the requested user.
 func GetExpenseByID(id int, userID int) (*Expense, error) {
+
+	// Get all user expenses.
 	expenses, err := GetExpensesByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Loop through the user's expenses to find the one with the requested ID. If found, return a pointer to the expense. Otherwise, return nil and an error.
 	for i := range expenses {
 		if expenses[i].ID == id {
 			return &expenses[i], nil
@@ -171,18 +200,24 @@ func GetExpenseByID(id int, userID int) (*Expense, error) {
 
 // CreateExpense stores a new expense in the CSV storage.
 func CreateExpense(expense *Expense) error {
+
+	// checking category validity before creating the expense
 	if !IsAllowedCategory(expense.Category) {
 		return ErrInvalidExpenseCategory
 	}
 
+	// Assign new ID . CreatedAt is set to current time.
+
 	expense.ID = GetNextExpenseID()
 	expense.CreatedAt = time.Now().UTC()
 
+	// Convert struct to CSV row and Append to file
 	return expenseutils.AppendExpenseCSV(expenseToRecord(*expense))
 }
 
 // UpdateExpense rewrites the expense CSV with the changed expense row.
 func UpdateExpense(expense *Expense) error {
+	// checking category validity before creating the expense
 	if !IsAllowedCategory(expense.Category) {
 		return ErrInvalidExpenseCategory
 	}
@@ -192,22 +227,32 @@ func UpdateExpense(expense *Expense) error {
 		return err
 	}
 
+	// Flag to track if update happened.
 	found := false
+
+	// New CSV file content.
 	records := make([][]string, 0, len(expenses))
 	for _, currentExpense := range expenses {
+
+		
 		if currentExpense.ID == expense.ID && currentExpense.UserID == expense.UserID {
+			
+			// here if the current expense in the loop is the one we want to update, we convert the updated expense struct to a CSV record and add it to the new records slice. 
 			records = append(records, expenseToRecord(*expense))
 			found = true
 			continue
 		}
 
+		// If it's not the expense we want to update, we just convert the current expense to a CSV record and add it to the new records slice without changing it.
 		records = append(records, expenseToRecord(currentExpense))
 	}
 
+	// If we went through all expenses and didn't find the one to update, return an error. Otherwise, we will rewrite the entire CSV file with the new records slice that contains the updated expense.
 	if !found {
 		return ErrExpenseNotFound
 	}
 
+	// Rewrite entire CSV file.
 	return expenseutils.WriteExpensesCSV(records)
 }
 
@@ -221,6 +266,7 @@ func DeleteExpense(id int, userID int) error {
 	found := false
 	records := make([][]string, 0, len(expenses))
 	for _, expense := range expenses {
+		// If this is the expense we want to delete, we skip adding it to the new records slice 
 		if expense.ID == id && expense.UserID == userID {
 			found = true
 			continue
@@ -229,10 +275,12 @@ func DeleteExpense(id int, userID int) error {
 		records = append(records, expenseToRecord(expense))
 	}
 
+	// If we went through all expenses and didn't find the one to delete, return an error. Otherwise, we will rewrite the entire CSV file with the new records slice that doesn't contain the deleted expense.
 	if !found {
 		return ErrExpenseNotFound
 	}
 
+	// Rewrite entire CSV file.
 	return expenseutils.WriteExpensesCSV(records)
 }
 
@@ -265,6 +313,8 @@ func IsAllowedCategory(category string) bool {
 }
 
 func sortExpenses(expenses []Expense, sortBy string, sortOrder string) {
+	
+	// No sorting needed.
 	if sortBy == "" {
 		return
 	}
@@ -297,7 +347,10 @@ func sortExpenses(expenses []Expense, sortBy string, sortOrder string) {
 	})
 }
 
+// Converts a CSV record (slice of strings) to an Expense struct. Returns an error if the record is invalid or any field cannot be parsed.
 func expenseFromRecord(record []string) (Expense, error) {
+
+	// A valid expense record must have exactly 8 fields. If not, return an error.
 	if len(record) < 8 {
 		return Expense{}, errors.New("invalid expense record")
 	}
@@ -334,6 +387,7 @@ func expenseFromRecord(record []string) (Expense, error) {
 	}, nil
 }
 
+// Converts an Expense struct to a CSV record (slice of strings) for writing to the CSV file.
 func expenseToRecord(expense Expense) []string {
 	return []string{
 		strconv.Itoa(expense.ID),

@@ -1,34 +1,5 @@
-// package csvutils
 
-// import (
-// 	"encoding/csv"
-// 	"os"
-// )
-
-// func ReadUsersCSV() ([][]string, error) {
-// 	if err := EnsureUsersCSV(); err != nil {
-// 		return nil, err
-// 	}
-
-// 	file, err := os.Open(UsersCSVPath)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer file.Close()
-
-// 	records, err := csv.NewReader(file).ReadAll()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	if len(records) <= 1 {
-// 		return [][]string{}, nil
-// 	}
-
-// 	return records[1:], nil
-// }
-
-package csvutils
+package userutils
 
 import (
 	"encoding/csv"

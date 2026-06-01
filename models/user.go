@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	csvutils "expense-tracker-api/utils/csv"
+	userutils "expense-tracker-api/utils/users"
 )
 
 // User represents one registered user stored in CSV.
@@ -25,13 +25,19 @@ var (
 
 // GetAllUsers returns every valid user row from CSV storage.
 func GetAllUsers() ([]User, error) {
-	records, err := csvutils.ReadUsersCSV()
+
+	// here we read all user records from the CSV file using the ReadUsersCSV function from the userutils package.
+	records, err := userutils.ReadUsersCSV()
 	if err != nil {
 		return nil, err
 	}
 
+	// users is an empty slice of User structs with an initial capacity equal to the number of records read from the CSV file. 
 	users := make([]User, 0, len(records))
+
+
 	for _, record := range records {
+		// Ensuring each record has the expected number of fields 
 		if len(record) < 5 {
 			continue
 		}
@@ -46,6 +52,7 @@ func GetAllUsers() ([]User, error) {
 			continue
 		}
 
+		// append valid User structs to the users slice,
 		users = append(users, User{
 			ID:        id,
 			Name:      record[1],
@@ -66,6 +73,8 @@ func GetUserByEmail(email string) (*User, error) {
 	}
 
 	for i := range users {
+
+		// strings.EqualFold to compare the email addresses in a case-insensitive way
 		if strings.EqualFold(users[i].Email, strings.TrimSpace(email)) {
 			return &users[i], nil
 		}
@@ -95,7 +104,7 @@ func CreateUser(user *User) error {
 	user.ID = GetNextID()
 	user.CreatedAt = time.Now().UTC()
 
-	return csvutils.AppendUserCSV([]string{
+	return userutils.AppendUserCSV([]string{
 		strconv.Itoa(user.ID),
 		user.Name,
 		user.Email,
