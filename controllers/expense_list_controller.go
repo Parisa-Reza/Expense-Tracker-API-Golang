@@ -56,8 +56,7 @@ func (c *ExpenseListController) List() {
 		expenses = expenses[:limit]
 	}
 
-	
-    // Prepare API response objects.
+	// Prepare API response objects.
 	data := make([]expenseResponse, 0, len(expenses))
 
 	// Convert model expenses into response objects.

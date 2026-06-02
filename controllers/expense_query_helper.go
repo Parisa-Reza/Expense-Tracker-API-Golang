@@ -84,12 +84,11 @@ func parseExpenseSummaryRange(controller *web.Controller) (string, string, bool)
 	return dateFrom, dateTo, true
 }
 
-
 // validateExpenseQueryDate ensures a single date query parameter is either:
 // 1. empty (optional parameter), or 2. in valid YYYY-MM-DD format
 
 func validateExpenseQueryDate(controller *web.Controller, name string, value string) bool {
-	
+
 	// Empty values are allowed (parameter is optional)
 	if value == "" {
 		return true
@@ -103,7 +102,6 @@ func validateExpenseQueryDate(controller *web.Controller, name string, value str
 
 	return true
 }
-
 
 // validateExpenseDateRange ensures the provided date range is logically valid. It assumes both dates are already format-validated.
 func validateExpenseDateRange(controller *web.Controller, dateFrom string, dateTo string) bool {

@@ -15,7 +15,8 @@ import (
 // RegisterHealthRoutes registers all health-related API routes.
 //
 // Available Routes:
-//   GET /api/v1/health → Checks if the server is running
+//
+//	GET /api/v1/health → Checks if the server is running
 func RegisterHealthRoutes() {
 
 	// Health check endpoint

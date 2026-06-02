@@ -30,10 +30,9 @@ func (c *ExpenseSummaryController) Summary() {
 		return
 	}
 
-
 	// Fetch aggregated expense summary for the user within the given date range.
 	summary, err := models.GetExpenseSummaryByUserID(userID, dateFrom, dateTo)
-	
+
 	if err != nil {
 		beego.Error("failed to generate expense summary:", err)
 		writeExpenseError(&c.Controller, http.StatusInternalServerError, "Could not generate summary")

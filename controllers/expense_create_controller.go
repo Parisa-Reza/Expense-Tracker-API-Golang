@@ -77,7 +77,7 @@ func (c *ExpenseCreateController) Create() {
 func parseExpenseRequest(controller *web.Controller) (expenseRequest, bool) {
 	var request expenseRequest
 
-	// parsing json to struct 
+	// parsing json to struct
 	if err := json.Unmarshal(controller.Ctx.Input.RequestBody, &request); err != nil {
 
 		// logging the error and returning a bad request response if the JSON is invalid or cannot be parsed into the expected structure.
@@ -92,8 +92,7 @@ func parseExpenseRequest(controller *web.Controller) (expenseRequest, bool) {
 	request.Note = strings.TrimSpace(request.Note)
 	request.ExpenseDate = strings.TrimSpace(request.ExpenseDate)
 
-
-    //validating required fields 
+	//validating required fields
 
 	if request.Title == "" || request.Category == "" || request.ExpenseDate == "" {
 		writeExpenseError(controller, http.StatusBadRequest, "Title, category, and expense_date are required")
@@ -118,7 +117,6 @@ func parseExpenseRequest(controller *web.Controller) (expenseRequest, bool) {
 	return request, true
 }
 
-
 // newExpenseResponse is a helper function that converts a models.Expense struct into an expenseResponse struct, which is the format we want to return in the JSON response.
 func newExpenseResponse(expense models.Expense) expenseResponse {
 	return expenseResponse{
@@ -131,7 +129,6 @@ func newExpenseResponse(expense models.Expense) expenseResponse {
 	}
 }
 
-// 
 func writeExpenseJSON(controller *web.Controller, statusCode int, success bool, message string, data interface{}) {
 	controller.Ctx.Output.SetStatus(statusCode)
 	controller.Data["json"] = map[string]interface{}{

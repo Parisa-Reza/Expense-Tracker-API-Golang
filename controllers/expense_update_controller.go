@@ -59,7 +59,6 @@ func (c *ExpenseUpdateController) Update() {
 	existingExpense.Note = request.Note
 	existingExpense.ExpenseDate = request.ExpenseDate
 
-
 	// Save updated expense.
 	if err := models.UpdateExpense(existingExpense); errors.Is(err, models.ErrInvalidExpenseCategory) {
 		writeExpenseError(&c.Controller, http.StatusBadRequest, "Invalid expense category")

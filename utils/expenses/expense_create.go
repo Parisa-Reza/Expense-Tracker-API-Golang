@@ -26,7 +26,7 @@ func EnsureExpensesCSV() error {
 	// Create folder if missing
 
 	// here 0755 means: read/write permissions for owner, and read permissions for group and others
-	
+
 	if err := os.MkdirAll(filepath.Dir(expensesCSVPath), 0755); err != nil {
 		return err
 	}

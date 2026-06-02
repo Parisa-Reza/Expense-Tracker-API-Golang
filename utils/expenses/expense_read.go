@@ -13,8 +13,7 @@ func ReadExpensesCSV() ([][]string, error) {
 		return nil, err
 	}
 
-
-    // Open the CSV file for reading
+	// Open the CSV file for reading
 	file, err := os.Open(GetExpensesCSVPath())
 	if err != nil {
 		return nil, err

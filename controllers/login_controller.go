@@ -7,10 +7,11 @@ import (
 
 	"expense-tracker-api/models"
 
+	beego "github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 )
 
-// Login Controller
+// LoginController handles user login requests.
 type LoginController struct {
 	web.Controller
 }
@@ -21,20 +22,14 @@ type loginRequest struct {
 	Password string `json:"password"`
 }
 
-
-// Login Method
+// Login authenticates a user with email and password.
 func (c *LoginController) Login() {
 	var request loginRequest
 
-	
 	// Parsing JSON to Struct
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &request); err != nil {
-		c.Ctx.Output.SetStatus(http.StatusBadRequest)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Invalid request body",
-		}
-		c.ServeJSON()
+		beego.Warn("invalid login request body:", err)
+		writeLoginJSON(&c.Controller, http.StatusBadRequest, false, "Invalid request body", nil)
 		return
 	}
 
@@ -45,24 +40,26 @@ func (c *LoginController) Login() {
 	// Check Authentication
 	user, err := models.GetUserByEmail(email)
 	if err != nil || user.Password != password {
-		c.Ctx.Output.SetStatus(http.StatusUnauthorized)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Invalid email or password",
-		}
-		c.ServeJSON()
+		beego.Warn("failed login attempt for email:", email)
+		writeLoginJSON(&c.Controller, http.StatusUnauthorized, false, "Invalid email or password", nil)
 		return
 	}
 
 	// Login Success
-	c.Data["json"] = map[string]interface{}{
-		"success": true,
-		"message": "Login successful",
-		"data": map[string]interface{}{
-			"user_id": user.ID,
-			"name":    user.Name,
-			"email":   user.Email,
-		},
+	beego.Info("user logged in:", user.ID)
+	writeLoginJSON(&c.Controller, http.StatusOK, true, "Login successful", map[string]interface{}{
+		"user_id": user.ID,
+		"name":    user.Name,
+		"email":   user.Email,
+	})
+}
+
+func writeLoginJSON(controller *web.Controller, statusCode int, success bool, message string, data interface{}) {
+	controller.Ctx.Output.SetStatus(statusCode)
+	controller.Data["json"] = map[string]interface{}{
+		"success": success,
+		"message": message,
+		"data":    data,
 	}
-	c.ServeJSON()
+	controller.ServeJSON()
 }

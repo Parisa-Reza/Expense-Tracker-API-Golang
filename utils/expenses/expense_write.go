@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"os"
 )
+
 // WriteExpensesCSV rewrites the entire expenses CSV file with the provided data rows.
 func WriteExpensesCSV(records [][]string) error {
 

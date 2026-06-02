@@ -101,7 +101,7 @@ func GetExpensesByUserID(userID int) ([]Expense, error) {
 
 // GetExpensesByUserIDWithOptions returns a user's expenses after applying filters and sorting.
 func GetExpensesByUserIDWithOptions(userID int, options ExpenseListOptions) ([]Expense, error) {
-	
+
 	// getting all expenses of the user
 	expenses, err := GetExpensesByUserID(userID)
 	if err != nil {
@@ -140,7 +140,7 @@ func FilterAndSortExpenses(expenses []Expense, options ExpenseListOptions) []Exp
 
 // GetExpenseSummaryByUserID returns aggregate totals for a user's expenses in a date range.
 func GetExpenseSummaryByUserID(userID int, dateFrom string, dateTo string) (ExpenseSummary, error) {
-	
+
 	// Getting all expenses of the user to summarize them
 	expenses, err := GetExpensesByUserID(userID)
 	if err != nil {
@@ -153,11 +153,10 @@ func GetExpenseSummaryByUserID(userID int, dateFrom string, dateTo string) (Expe
 // SummarizeExpenses totals expenses that fall within the optional date range.
 func SummarizeExpenses(expenses []Expense, dateFrom string, dateTo string) ExpenseSummary {
 
-	
 	summary := ExpenseSummary{
-		DateFrom:       dateFrom,
-		DateTo:         dateTo,
-		// map for storing total amounts per category, 
+		DateFrom: dateFrom,
+		DateTo:   dateTo,
+		// map for storing total amounts per category,
 		CategoryTotals: make(map[string]float64),
 	}
 
@@ -234,10 +233,9 @@ func UpdateExpense(expense *Expense) error {
 	records := make([][]string, 0, len(expenses))
 	for _, currentExpense := range expenses {
 
-		
 		if currentExpense.ID == expense.ID && currentExpense.UserID == expense.UserID {
-			
-			// here if the current expense in the loop is the one we want to update, we convert the updated expense struct to a CSV record and add it to the new records slice. 
+
+			// here if the current expense in the loop is the one we want to update, we convert the updated expense struct to a CSV record and add it to the new records slice.
 			records = append(records, expenseToRecord(*expense))
 			found = true
 			continue
@@ -266,7 +264,7 @@ func DeleteExpense(id int, userID int) error {
 	found := false
 	records := make([][]string, 0, len(expenses))
 	for _, expense := range expenses {
-		// If this is the expense we want to delete, we skip adding it to the new records slice 
+		// If this is the expense we want to delete, we skip adding it to the new records slice
 		if expense.ID == id && expense.UserID == userID {
 			found = true
 			continue
@@ -313,7 +311,7 @@ func IsAllowedCategory(category string) bool {
 }
 
 func sortExpenses(expenses []Expense, sortBy string, sortOrder string) {
-	
+
 	// No sorting needed.
 	if sortBy == "" {
 		return

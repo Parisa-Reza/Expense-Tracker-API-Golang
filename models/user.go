@@ -32,12 +32,11 @@ func GetAllUsers() ([]User, error) {
 		return nil, err
 	}
 
-	// users is an empty slice of User structs with an initial capacity equal to the number of records read from the CSV file. 
+	// users is an empty slice of User structs with an initial capacity equal to the number of records read from the CSV file.
 	users := make([]User, 0, len(records))
 
-
 	for _, record := range records {
-		// Ensuring each record has the expected number of fields 
+		// Ensuring each record has the expected number of fields
 		if len(record) < 5 {
 			continue
 		}

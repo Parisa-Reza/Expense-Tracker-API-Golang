@@ -23,6 +23,7 @@ func (c *HealthController) Check() {
 	c.Data["json"] = map[string]interface{}{
 		"success": true,
 		"message": "Server is running",
+		"data":    nil,
 	}
 	c.ServeJSON()
 }

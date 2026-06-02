@@ -26,7 +26,6 @@ func (c *ExpenseGetController) Get() {
 		return
 	}
 
-	
 	expenseID, ok := parseExpenseID(&c.Controller)
 	if !ok {
 		return
@@ -49,7 +48,6 @@ func (c *ExpenseGetController) Get() {
 	// here writeExpensionJSON to send a JSON response back to the client with the expense data, using the newExpenseResponse helper function to format the expense data appropriately for the response.
 	writeExpenseJSON(&c.Controller, http.StatusOK, true, "Expense retrieved", newExpenseResponse(*expense))
 }
-
 
 // parseExpenseID extracts the ":id" route parameter from the request URL, converts it to an integer, and validates that it is a positive value.
 func parseExpenseID(controller *web.Controller) (int, bool) {

@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/mail"
 	"strings"
 
 	"expense-tracker-api/models"
 
+	beego "github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 )
 
-// Register Controller
+// RegisterController handles user registration requests.
 type RegisterController struct {
 	web.Controller
 }
@@ -23,7 +25,7 @@ type registerRequest struct {
 	Password string `json:"password"`
 }
 
-// Register Method
+// Register creates a new user account after validating the request.
 func (c *RegisterController) Register() {
 
 	// Create Empty Request Object
@@ -31,12 +33,8 @@ func (c *RegisterController) Register() {
 
 	// Parsing JSON to Struct
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &request); err != nil {
-		c.Ctx.Output.SetStatus(http.StatusBadRequest)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Invalid request body",
-		}
-		c.ServeJSON()
+		beego.Warn("invalid register request body:", err)
+		writeRegisterJSON(&c.Controller, http.StatusBadRequest, false, "Invalid request body", nil)
 		return
 	}
 
@@ -46,32 +44,34 @@ func (c *RegisterController) Register() {
 	request.Password = strings.TrimSpace(request.Password)
 
 	// Check Required Fields
-	if request.Name == "" || request.Email == "" || request.Password == "" {
-		c.Ctx.Output.SetStatus(http.StatusBadRequest)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Name, email, and password are required",
-		}
-		c.ServeJSON()
+	if request.Name == "" {
+		writeRegisterJSON(&c.Controller, http.StatusBadRequest, false, "Name is required", nil)
+		return
+	}
+	if request.Email == "" {
+		writeRegisterJSON(&c.Controller, http.StatusBadRequest, false, "Email is required", nil)
+		return
+	}
+	if _, err := mail.ParseAddress(request.Email); err != nil {
+		writeRegisterJSON(&c.Controller, http.StatusBadRequest, false, "Email must be valid", nil)
+		return
+	}
+	if request.Password == "" {
+		writeRegisterJSON(&c.Controller, http.StatusBadRequest, false, "Password is required", nil)
+		return
+	}
+	if len(request.Password) < 6 {
+		writeRegisterJSON(&c.Controller, http.StatusBadRequest, false, "Password must be at least 6 characters", nil)
 		return
 	}
 
 	// Check Whether Email Already Exists
 	if _, err := models.GetUserByEmail(request.Email); err == nil {
-		c.Ctx.Output.SetStatus(http.StatusConflict)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Email already exists",
-		}
-		c.ServeJSON()
+		writeRegisterJSON(&c.Controller, http.StatusConflict, false, "Email already exists", nil)
 		return
 	} else if !errors.Is(err, models.ErrUserNotFound) {
-		c.Ctx.Output.SetStatus(http.StatusInternalServerError)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Could not check email",
-		}
-		c.ServeJSON()
+		beego.Error("failed to check email:", err)
+		writeRegisterJSON(&c.Controller, http.StatusInternalServerError, false, "Could not check email", nil)
 		return
 	}
 
@@ -82,25 +82,23 @@ func (c *RegisterController) Register() {
 		Password: request.Password,
 	}
 
-	// Save User
-	
 	if err := models.CreateUser(user); err != nil {
-		c.Ctx.Output.SetStatus(http.StatusInternalServerError)
-		c.Data["json"] = map[string]interface{}{
-			"success": false,
-			"message": "Could not register user",
-		}
-		c.ServeJSON()
+		beego.Error("failed to register user:", err)
+		writeRegisterJSON(&c.Controller, http.StatusInternalServerError, false, "Could not register user", nil)
 		return
 	}
 
 	// Registration Success
-	c.Ctx.Output.SetStatus(http.StatusCreated)
-	c.Data["json"] = map[string]interface{}{
-		"success": true,
-		"message": "User registered successfully",
-	}
+	beego.Info("user registered:", user.ID)
+	writeRegisterJSON(&c.Controller, http.StatusCreated, true, "User registered successfully", nil)
+}
 
-	// Return JSON Response to Client
-	c.ServeJSON()
+func writeRegisterJSON(controller *web.Controller, statusCode int, success bool, message string, data interface{}) {
+	controller.Ctx.Output.SetStatus(statusCode)
+	controller.Data["json"] = map[string]interface{}{
+		"success": success,
+		"message": message,
+		"data":    data,
+	}
+	controller.ServeJSON()
 }
