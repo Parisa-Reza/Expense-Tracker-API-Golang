@@ -17,6 +17,22 @@ type ExpenseListController struct {
 }
 
 // List returns expenses owned by the authenticated user.
+// @Title       List Expenses
+// @Summary     Retrieves all expenses for authenticated user
+// @Description Returns a list of all expenses for the authenticated user with optional filtering and sorting
+// @Tags        Expenses
+// @Produce     json
+// @Param       X-User-ID header string true "User ID from login"
+// @Param       category query string false "Filter by category"
+// @Param       sort query string false "Sort by field (e.g., 'amount', 'date')"
+// @Param       order query string false "Sort order: 'asc' or 'desc'"
+// @Param       limit query int false "Maximum number of expenses to return"
+// @Success     200 {object} map[string]interface{} "Expenses retrieved"
+// @Failure     400 {object} map[string]interface{} "Invalid query parameters"
+// @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Security    UserIDHeader
+// @Router      /expenses [get]
 func (c *ExpenseListController) List() {
 
 	// Validate user and get authenticated user ID.

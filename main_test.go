@@ -28,6 +28,9 @@ func TestMainPackage(t *testing.T) {
 			if tt.runMode == "dev" && !beego.BConfig.WebConfig.DirectoryIndex {
 				t.Fatalf("DirectoryIndex = false, want true")
 			}
+			if tt.runMode == "dev" && beego.BConfig.WebConfig.StaticDir["/swagger"] != "swagger" {
+				t.Fatalf("swagger static dir = %q, want swagger", beego.BConfig.WebConfig.StaticDir["/swagger"])
+			}
 		})
 	}
 }

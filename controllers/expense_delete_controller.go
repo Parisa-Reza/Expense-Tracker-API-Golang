@@ -16,6 +16,20 @@ type ExpenseDeleteController struct {
 }
 
 // Delete removes one expense owned by the authenticated user.
+// @Title       Delete Expense
+// @Summary     Deletes an expense
+// @Description Removes an expense from the authenticated user's records
+// @Tags        Expenses
+// @Produce     json
+// @Param       X-User-ID header string true "User ID from login"
+// @Param       id path int true "Expense ID"
+// @Success     200 {object} map[string]interface{} "Expense deleted successfully"
+// @Failure     400 {object} map[string]interface{} "Invalid expense ID"
+// @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
+// @Failure     404 {object} map[string]interface{} "Expense not found"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Security    UserIDHeader
+// @Router      /expenses/{id} [delete]
 func (c *ExpenseDeleteController) Delete() {
 
 	// Get authenticated user's ID from request header.

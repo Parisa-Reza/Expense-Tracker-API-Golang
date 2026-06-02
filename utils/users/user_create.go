@@ -8,15 +8,12 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-// File path constant
-const UsersCSVPath = "data/users.csv"
-
 // CSV header row
 var usersCSVHeader = []string{"id", "name", "email", "password", "created_at"}
 
-// GetUsersCSVPath returns the configured users CSV path.
+// GetUsersCSVPath returns the configured users CSV path from app.conf.
 func GetUsersCSVPath() string {
-	return beego.AppConfig.DefaultString("users_csv_path", UsersCSVPath)
+	return beego.AppConfig.DefaultString("users_csv_path", "")
 }
 
 // EnsureUsersCSV creates the users CSV file with a header when it does not exist.

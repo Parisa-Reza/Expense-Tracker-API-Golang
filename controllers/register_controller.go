@@ -26,6 +26,18 @@ type registerRequest struct {
 }
 
 // Register creates a new user account after validating the request.
+// @Title       User Registration
+// @Summary     Creates a new user account
+// @Description Registers a new user with name, email, and password. Email must be unique and valid.
+// @Tags        Authentication
+// @Accept      json
+// @Produce     json
+// @Param       user body registerRequest true "User registration data"
+// @Success     201 {object} map[string]interface{} "User registered successfully"
+// @Failure     400 {object} map[string]interface{} "Invalid request body or validation error"
+// @Failure     409 {object} map[string]interface{} "User already exists"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Router      /auth/register [post]
 func (c *RegisterController) Register() {
 
 	// Create Empty Request Object

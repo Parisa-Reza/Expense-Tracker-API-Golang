@@ -15,6 +15,20 @@ type ExpenseSummaryController struct {
 }
 
 // Summary returns aggregate expense totals for the authenticated user.
+// @Title       Get Expense Summary
+// @Summary     Retrieves expense summary and totals
+// @Description Returns aggregated expense totals by category and overall for the authenticated user within optional date range
+// @Tags        Expenses
+// @Produce     json
+// @Param       X-User-ID header string true "User ID from login"
+// @Param       date_from query string false "Start date (YYYY-MM-DD format)"
+// @Param       date_to query string false "End date (YYYY-MM-DD format)"
+// @Success     200 {object} map[string]interface{} "Summary generated"
+// @Failure     400 {object} map[string]interface{} "Invalid date format or query parameters"
+// @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Security    UserIDHeader
+// @Router      /expenses/summary [get]
 func (c *ExpenseSummaryController) Summary() {
 
 	// Extract authenticated user ID from request context/header.

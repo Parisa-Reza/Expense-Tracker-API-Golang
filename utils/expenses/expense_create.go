@@ -8,15 +8,12 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-// ExpensesCSVPath is the fallback path for expense CSV storage.
-const ExpensesCSVPath = "data/expenses.csv"
-
 // CSV header row
 var expensesCSVHeader = []string{"id", "user_id", "title", "amount", "category", "note", "expense_date", "created_at"}
 
-// GetExpensesCSVPath returns the configured expenses CSV path.
+// GetExpensesCSVPath returns the configured expenses CSV path from app.conf.
 func GetExpensesCSVPath() string {
-	return beego.AppConfig.DefaultString("expenses_csv_path", ExpensesCSVPath)
+	return beego.AppConfig.DefaultString("expenses_csv_path", "")
 }
 
 // EnsureExpensesCSV creates the expenses CSV file with a header when it does not exist.

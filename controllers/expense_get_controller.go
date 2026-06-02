@@ -17,6 +17,20 @@ type ExpenseGetController struct {
 }
 
 // Get returns one expense owned by the authenticated user.
+// @Title       Get Expense
+// @Summary     Retrieves a single expense by ID
+// @Description Returns details of a specific expense owned by the authenticated user
+// @Tags        Expenses
+// @Produce     json
+// @Param       X-User-ID header string true "User ID from login"
+// @Param       id path int true "Expense ID"
+// @Success     200 {object} map[string]interface{} "Expense retrieved"
+// @Failure     400 {object} map[string]interface{} "Invalid expense ID"
+// @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
+// @Failure     404 {object} map[string]interface{} "Expense not found"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Security    UserIDHeader
+// @Router      /expenses/{id} [get]
 func (c *ExpenseGetController) Get() {
 
 	// GetAuthenticatedUserID to checks if the request is authenticated and to get the user ID.

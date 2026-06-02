@@ -35,7 +35,21 @@ type expenseResponse struct {
 	ExpenseDate string  `json:"expense_date"`
 }
 
-// creates a new expense for the authenticated user.
+// Create creates a new expense for the authenticated user.
+// @Title       Create Expense
+// @Summary     Creates a new expense
+// @Description Creates a new expense record for the authenticated user with title, amount, category, and date
+// @Tags        Expenses
+// @Accept      json
+// @Produce     json
+// @Param       X-User-ID header string true "User ID from login"
+// @Param       expense body expenseRequest true "Expense object to create"
+// @Success     201 {object} map[string]interface{} "Expense created successfully"
+// @Failure     400 {object} map[string]interface{} "Invalid request body or missing required fields"
+// @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Security    UserIDHeader
+// @Router      /expenses [post]
 func (c *ExpenseCreateController) Create() {
 	userID, ok := GetAuthenticatedUserID(c.Ctx)
 	if !ok {

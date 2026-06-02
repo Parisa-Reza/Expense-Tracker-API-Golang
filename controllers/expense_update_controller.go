@@ -16,6 +16,22 @@ type ExpenseUpdateController struct {
 }
 
 // Update updates one expense owned by the authenticated user.
+// @Title       Update Expense
+// @Summary     Updates an existing expense
+// @Description Updates an expense with new title, amount, category, note, or date
+// @Tags        Expenses
+// @Accept      json
+// @Produce     json
+// @Param       X-User-ID header string true "User ID from login"
+// @Param       id path int true "Expense ID"
+// @Param       expense body expenseRequest true "Updated expense data"
+// @Success     200 {object} map[string]interface{} "Expense updated successfully"
+// @Failure     400 {object} map[string]interface{} "Invalid request body or expense ID"
+// @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
+// @Failure     404 {object} map[string]interface{} "Expense not found"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Security    UserIDHeader
+// @Router      /expenses/{id} [put]
 func (c *ExpenseUpdateController) Update() {
 
 	// Get authenticated user's ID from request header.

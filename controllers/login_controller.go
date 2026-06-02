@@ -23,6 +23,18 @@ type loginRequest struct {
 }
 
 // Login authenticates a user with email and password.
+// @Title       User Login
+// @Summary     Authenticates user and returns user ID
+// @Description Logs in a user with email and password. Returns user ID for use in authenticated endpoints.
+// @Tags        Authentication
+// @Accept      json
+// @Produce     json
+// @Param       login body loginRequest true "Login credentials"
+// @Success     200 {object} map[string]interface{} "Login successful with user_id"
+// @Failure     400 {object} map[string]interface{} "Invalid request body"
+// @Failure     401 {object} map[string]interface{} "Invalid email or password"
+// @Failure     500 {object} map[string]interface{} "Internal server error"
+// @Router      /auth/login [post]
 func (c *LoginController) Login() {
 	var request loginRequest
 
