@@ -18,7 +18,7 @@ type HealthController struct {
 // @Tags        Health
 // @Produce     json
 // @Success     200  {object}  map[string]interface{}  "Server is running"
-// @Router      /api/v1/health [get]
+// @router      /api/v1/health [get]
 func (c *HealthController) Check() {
 	c.Data["json"] = map[string]interface{}{
 		"success": true,

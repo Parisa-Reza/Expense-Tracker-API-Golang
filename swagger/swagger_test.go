@@ -8,11 +8,11 @@ import (
 )
 
 type swaggerDocument struct {
-	Swagger             string                                   `json:"swagger"`
-	BasePath            string                                   `json:"basePath"`
-	Paths               map[string]map[string]json.RawMessage    `json:"paths"`
-	Definitions         map[string]json.RawMessage               `json:"definitions"`
-	SecurityDefinitions map[string]map[string]interface{}         `json:"securityDefinitions"`
+	Swagger             string                                `json:"swagger"`
+	BasePath            string                                `json:"basePath"`
+	Paths               map[string]map[string]json.RawMessage `json:"paths"`
+	Definitions         map[string]json.RawMessage            `json:"definitions"`
+	SecurityDefinitions map[string]map[string]interface{}     `json:"securityDefinitions"`
 }
 
 func TestSwaggerDocumentIsValidAndDocumentsRoutes(t *testing.T) {

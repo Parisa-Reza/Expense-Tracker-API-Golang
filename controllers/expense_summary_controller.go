@@ -28,7 +28,7 @@ type ExpenseSummaryController struct {
 // @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
 // @Security    UserIDHeader
-// @Router      /expenses/summary [get]
+// @router      /expenses/summary [get]
 func (c *ExpenseSummaryController) Summary() {
 
 	// Extract authenticated user ID from request context/header.

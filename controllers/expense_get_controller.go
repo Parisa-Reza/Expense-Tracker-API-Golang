@@ -30,7 +30,7 @@ type ExpenseGetController struct {
 // @Failure     404 {object} map[string]interface{} "Expense not found"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
 // @Security    UserIDHeader
-// @Router      /expenses/{id} [get]
+// @router      /expenses/{id} [get]
 func (c *ExpenseGetController) Get() {
 
 	// GetAuthenticatedUserID to checks if the request is authenticated and to get the user ID.

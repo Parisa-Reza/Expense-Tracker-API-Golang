@@ -33,7 +33,7 @@ func GetAuthenticatedUserID(ctx *context.Context) (int, bool) {
 			"success": false,
 			"message": "Unauthorized",
 			"data":    nil,
-		}, false, false) // here false, false means: do not indent JSON and do not escape HTML characters
+		}, true, false) // here false, false means: do not indent JSON and do not escape HTML characters
 		return 0, false
 	}
 

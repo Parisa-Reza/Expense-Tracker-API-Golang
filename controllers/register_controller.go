@@ -37,7 +37,7 @@ type registerRequest struct {
 // @Failure     400 {object} map[string]interface{} "Invalid request body or validation error"
 // @Failure     409 {object} map[string]interface{} "User already exists"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
-// @Router      /auth/register [post]
+// @router      /auth/register [post]
 func (c *RegisterController) Register() {
 
 	// Create Empty Request Object

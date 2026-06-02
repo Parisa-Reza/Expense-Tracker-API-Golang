@@ -32,7 +32,7 @@ type ExpenseListController struct {
 // @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
 // @Security    UserIDHeader
-// @Router      /expenses [get]
+// @router      /expenses [get]
 func (c *ExpenseListController) List() {
 
 	// Validate user and get authenticated user ID.

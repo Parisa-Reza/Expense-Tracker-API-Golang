@@ -34,7 +34,7 @@ type loginRequest struct {
 // @Failure     400 {object} map[string]interface{} "Invalid request body"
 // @Failure     401 {object} map[string]interface{} "Invalid email or password"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
-// @Router      /auth/login [post]
+// @router      /auth/login [post]
 func (c *LoginController) Login() {
 	var request loginRequest
 

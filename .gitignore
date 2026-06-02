@@ -9,12 +9,17 @@ conf/app.conf
 *.log
 logs/
 
-# Go binaries
-*.exe
-*.out
-/bin/
 
 # OS/IDE noise
 .DS_Store
 .idea/
 .vscode/
+
+# Go binary
+Expense-Tracker-API-Golang
+expense-tracker-api
+*.exe
+*.out
+bin/
+build/
+dist/

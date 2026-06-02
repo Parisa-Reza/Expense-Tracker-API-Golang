@@ -49,7 +49,7 @@ type expenseResponse struct {
 // @Failure     401 {object} map[string]interface{} "Unauthorized - User ID not provided"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
 // @Security    UserIDHeader
-// @Router      /expenses [post]
+// @router      /expenses [post]
 func (c *ExpenseCreateController) Create() {
 	userID, ok := GetAuthenticatedUserID(c.Ctx)
 	if !ok {

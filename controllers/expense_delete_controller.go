@@ -29,7 +29,7 @@ type ExpenseDeleteController struct {
 // @Failure     404 {object} map[string]interface{} "Expense not found"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
 // @Security    UserIDHeader
-// @Router      /expenses/{id} [delete]
+// @router      /expenses/{id} [delete]
 func (c *ExpenseDeleteController) Delete() {
 
 	// Get authenticated user's ID from request header.

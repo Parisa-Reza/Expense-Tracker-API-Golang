@@ -31,7 +31,7 @@ type ExpenseUpdateController struct {
 // @Failure     404 {object} map[string]interface{} "Expense not found"
 // @Failure     500 {object} map[string]interface{} "Internal server error"
 // @Security    UserIDHeader
-// @Router      /expenses/{id} [put]
+// @router      /expenses/{id} [put]
 func (c *ExpenseUpdateController) Update() {
 
 	// Get authenticated user's ID from request header.
