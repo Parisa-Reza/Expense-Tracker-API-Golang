@@ -1,4 +1,3 @@
-"""
 # Personal Expense Tracker API
 
 A backend REST API built using **Go** and the **Beego v2 framework** that helps users manage daily expenses efficiently.  
@@ -39,6 +38,7 @@ It focuses on:
 ## Code Coverage
 
 > ### Total code coverage = 85.2% 
+<img width="944" height="270" alt="codeCoverage" src="https://github.com/user-attachments/assets/b1c45a36-4450-498d-8892-94350c3765a4" />
 
 
 
